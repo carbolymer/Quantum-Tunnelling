@@ -1,14 +1,11 @@
-import java.util.Observable;
-import java.util.Observer;
-
 import javax.swing.*;
 
 
 /*
  * 
  * Quantum Tunnelling
- * Tworzenie apletów w Swing: http://download.oracle.com/javase/tutorial/uiswing/components/applet.html
- * Informacja dotycząca wątków w Swingu: http://download.oracle.com/javase/tutorial/uiswing/concurrency/index.html
+ * Tworzenie apletow w Swing: http://download.oracle.com/javase/tutorial/uiswing/components/applet.html
+ * Informacja dotycząca watkow w Swingu: http://download.oracle.com/javase/tutorial/uiswing/concurrency/index.html
  * 
  */
 
@@ -23,6 +20,8 @@ public class Window extends JApplet
 		final Interface frontend = new Interface(this);
 		// obiekt odpowiedzialny za rysowanie wykresu
 		PotentialPlot potentialPlot = new PotentialPlot(frontend);
+		UpdateCoefficients updateCoefficients = new UpdateCoefficients(frontend);
+		WaveFunctionPlot wavefunctionPlot = new WaveFunctionPlot(frontend);
 		
 		// lancuch eventow
 		// modyfikacja parametru potencjalu -> rysowanie wykresu potencjalu + obliczenia numeryczne -> rysowanie funkcji falowej + obliczanie wspolczynnikow
@@ -30,7 +29,8 @@ public class Window extends JApplet
 		//frontend.potentialUpdate.addObserver( <<obiekt klasy do obliczen numerycznych dziedziczacy po Observable i implementujacy Observer>> );
 		frontend.potentialUpdate.addObserver(potentialPlot);
 		frontend.particleUpdate.addObserver(potentialPlot);
-		//frontend.particleUpdate.addObserver( <<j/w>> );
+		potentialPlot.addObserver(updateCoefficients);
+		potentialPlot.addObserver(wavefunctionPlot);
 		
 	    try
 	    {
@@ -47,9 +47,15 @@ public class Window extends JApplet
 	    catch (Exception e)
 	    {
 	        System.err.println("Nie można byłu narysować interfejsu.");
+	        System.err.println(e.getMessage());
 	    }
 	    
 	    
+	}
+	public static void main(String[] args)
+	{
+		Window d = new Window();
+		d.init();
 	}
 
 }

@@ -20,6 +20,9 @@ import org.jfree.data.xy.*;
 
 public class Interface
 {
+	public static double me = 9.10938e-31; // masa elektronu
+	public static double eV = 1.60217653e-19; // elektronowolt
+	
 	// okno apletu
 	Window frame;
 	// wykres potencjalu
@@ -32,40 +35,29 @@ public class Interface
 	// wykres funkcji falowej
 	private ChartPanel wavefunctionChart;
 	// wszystkie dane do wykresu
-	private XYSeriesCollection wavefunctionChartSeriesCollection = new XYSeriesCollection();
+	protected XYSeriesCollection wavefunctionChartSeriesCollection = new XYSeriesCollection();
 	// wartosci funkcji falowej
 	protected XYSeries wavefunctionValues = new XYSeries("");	
 	
-	// combo wyboru potencjalu
-	String[] functions =
-	{
-		"<html>prostokąt (y=&alpha;x+10&beta; ; x&#8714;[-&gamma;/2;&gamma/2])</html>",
-		"<html>&alpha;/(&beta;x<sup>2</sup>+&gamma;)</html>",
-		"<html>&alpha;(arctg(-&beta;x<sup>2</sup>)+&pi;/2)</html>",
-		"<html>&alpha;e<sup>-(x/&beta;)^2</sup></html>",
-		"<html>&alpha;sin(&beta;x/&pi;)</html>",
-		"<html>wielomian</html>",  // TODO 
-		"<html>&alpha;sinc(&beta;x)</html>"
-	};
-	protected JComboBox potentialFunctionCombo = new JComboBox(functions);
-	
-	// parametry do obliczen, kolejno alpha, beta, gamma, energia, masa
+	// parametry do obliczen, kolejno szerokosc bariery, V1,V2, V3, energia, masa
 	protected JTextField
-		aParam = new JTextField("1.0",5),
-		bParam = new JTextField("1.0",5),
-		cParam = new JTextField("1.0",5),
-		eParam = new JTextField("0.0",5),
-		mParam = new JTextField("0.0",5),
-		dCoef = new JTextField("0.0",5),
-		rCoef = new JTextField("0.0",5);
+		widthParam = new JTextField("10.0",5),
+		v1Param = new JTextField("0.0",5),
+		v2Param = new JTextField("30.0",5),
+		v3Param = new JTextField("0.0",5),
+		eParam = new JTextField("10.0",5),
+		mParam = new JTextField("0.5",5),
+		dCoef = new JTextField("0.0",5), // wspolczynnik przenikania
+		rCoef = new JTextField("0.0",5); // wspolczynnik odbicia
 	
 	// suwaki do parametrow
 	protected JSlider
-		aSlider = new JSlider(JSlider.HORIZONTAL, 0,20000,1000),
-		bSlider = new JSlider(JSlider.HORIZONTAL, 0,5000,1000),
-		cSlider = new JSlider(JSlider.HORIZONTAL, 0,50000,1000),
-		eSlider = new JSlider(JSlider.HORIZONTAL, 0,100000,0),
-		mSlider = new JSlider(JSlider.HORIZONTAL, 0,100000,0);
+		v1Slider = new JSlider(JSlider.HORIZONTAL, 0,50000,0),
+		v2Slider = new JSlider(JSlider.HORIZONTAL, 0,50000,30000),
+		v3Slider = new JSlider(JSlider.HORIZONTAL, 0,50000,0),
+		widthSlider = new JSlider(JSlider.HORIZONTAL, 0,35000,10000),
+		eSlider = new JSlider(JSlider.HORIZONTAL, 0,50000,10000),
+		mSlider = new JSlider(JSlider.HORIZONTAL, 0,4000,1000);
 	
 	// akcja wykonywana po zmianie parametru suwaka
 	protected ChangeListener sliderChangeAction;
@@ -86,9 +78,10 @@ public class Interface
 		potentialUpdate = new ModificationListener.Changeable();
 		particleUpdate = new ModificationListener.Changeable();
 	
-		aParam.setHorizontalAlignment(JTextField.RIGHT);
-		bParam.setHorizontalAlignment(JTextField.RIGHT);
-		cParam.setHorizontalAlignment(JTextField.RIGHT);
+		v1Param.setHorizontalAlignment(JTextField.RIGHT);
+		v2Param.setHorizontalAlignment(JTextField.RIGHT);
+		v3Param.setHorizontalAlignment(JTextField.RIGHT);
+		widthParam.setHorizontalAlignment(JTextField.RIGHT);
 		eParam.setHorizontalAlignment(JTextField.RIGHT);
 		mParam.setHorizontalAlignment(JTextField.RIGHT);
 		rCoef.setHorizontalAlignment(JTextField.RIGHT);
@@ -96,32 +89,34 @@ public class Interface
 		rCoef.setEditable(false);
 		dCoef.setEditable(false);
 		
-		aSlider.addChangeListener(sliderChangeAction);
-		bSlider.addChangeListener(sliderChangeAction);
-		cSlider.addChangeListener(sliderChangeAction);
+		v1Slider.addChangeListener(sliderChangeAction);
+		v2Slider.addChangeListener(sliderChangeAction);
+		v3Slider.addChangeListener(sliderChangeAction);
+		widthSlider.addChangeListener(sliderChangeAction);
 		eSlider.addChangeListener(sliderChangeAction);
 		mSlider.addChangeListener(sliderChangeAction);
 		
-		aSlider.addChangeListener(potentialUpdate);
-		bSlider.addChangeListener(potentialUpdate);
-		cSlider.addChangeListener(potentialUpdate);
+		v1Slider.addChangeListener(potentialUpdate);
+		v2Slider.addChangeListener(potentialUpdate);
+		v3Slider.addChangeListener(potentialUpdate);
+		widthSlider.addChangeListener(potentialUpdate);
 		eSlider.addChangeListener(particleUpdate);
 		mSlider.addChangeListener(particleUpdate);
 		
-		aParam.addActionListener(fieldChangeAction);
-		bParam.addActionListener(fieldChangeAction);
-		cParam.addActionListener(fieldChangeAction);
+		v1Param.addActionListener(fieldChangeAction);
+		v2Param.addActionListener(fieldChangeAction);
+		v3Param.addActionListener(fieldChangeAction);
+		widthParam.addActionListener(fieldChangeAction);
 		eParam.addActionListener(fieldChangeAction);
 		mParam.addActionListener(fieldChangeAction);
 
-		aParam.addActionListener(potentialUpdate);
-		bParam.addActionListener(potentialUpdate);
-		cParam.addActionListener(potentialUpdate);
+		v1Param.addActionListener(potentialUpdate);
+		v2Param.addActionListener(potentialUpdate);
+		v3Param.addActionListener(potentialUpdate);
+		widthParam.addActionListener(potentialUpdate);
 		eParam.addActionListener(particleUpdate);
 		mParam.addActionListener(particleUpdate);
 		
-		potentialFunctionCombo.addActionListener(fieldChangeAction);
-		potentialFunctionCombo.addActionListener(potentialUpdate);
 	}
 		
 	/*
@@ -129,17 +124,14 @@ public class Interface
 	 */
 	public void createGUI()
 	{
-		frame.setSize(1000,450);
+		frame.setSize(1080,440);
 		// GridBagLayout imo najwygodniejszy do uzycia
 		frame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		
 		// ustawienia wykresu potencjalu
-		potentialValues.add(1,2); // TODO wywalic
-		potentialValues.add(5,7); // TODO wywalic
-		potentialChartSeriesCollection.addSeries(potentialValues);
 		potentialChart = new ChartPanel(ChartFactory.createXYLineChart(
-				"", "x", "U(x)", potentialChartSeriesCollection,
+				"", "x", "U(x) [eV]", potentialChartSeriesCollection,
 				PlotOrientation.VERTICAL, false, false, false));
 		potentialChart.setPreferredSize(new Dimension(450,300));
 		
@@ -157,41 +149,39 @@ public class Interface
 		c.gridx = 0;
 		c.gridy = 2;
 		c.gridwidth = 1;
-		frame.add(new JLabel("<html>Wybierz funkcję<br/> modelującą potencjał:</html>"),c);
+		frame.add(new JLabel("<html>Szerokość bariery potencjału [eV]: </html>",JLabel.RIGHT),c);
 		c.gridx = 1;
 		c.gridy = 2;
-		c.gridwidth = 2;
-		frame.add(potentialFunctionCombo, c);
+		frame.add(widthParam, c);
+		c.gridx = 2;
+		c.gridy = 2;
+		frame.add(widthSlider, c);
 		c.gridx = 0;
 		c.gridy = 3;
 		c.gridwidth = 1;
-		frame.add(new JLabel("<html>Parametr &alpha;: </html>",JLabel.RIGHT),c);
+		frame.add(new JLabel("<html>Potencjał pierwszego przedziału [eV]: </html>",JLabel.RIGHT),c);
 		c.gridx = 1;
-		frame.add(aParam, c);
+		frame.add(v1Param, c);
 		c.gridx = 2;
-		frame.add(aSlider,c);
+		frame.add(v1Slider,c);
 		c.gridx = 0;
 		c.gridy = 4;
-		frame.add(new JLabel("<html>Parametr &beta;:</html>",JLabel.RIGHT ),c);
+		frame.add(new JLabel("<html>Potencjał w drugim przedziale [eV]:</html>",JLabel.RIGHT ),c);
 		c.gridx = 1;
-		frame.add(bParam, c);
+		frame.add(v2Param, c);
 		c.gridx = 2;
-		frame.add(bSlider,c);
+		frame.add(v2Slider,c);
 		c.gridx = 0;
 		c.gridy = 5;
-		frame.add(new JLabel("<html>Parametr &gamma;: </html>",JLabel.RIGHT),c);
+		frame.add(new JLabel("<html>Potencjał w trzecim przedziale [eV]: </html>",JLabel.RIGHT),c);
 		c.gridx = 1;
-		frame.add(cParam, c);
+		frame.add(v3Param, c);
 		c.gridx = 2;
-		frame.add(cSlider,c);
+		frame.add(v3Slider,c);
 		
-		// zapychacz miejsca
-		wavefunctionValues.add(1,2);
-		wavefunctionValues.add(5,7);
-		wavefunctionChartSeriesCollection.addSeries(potentialValues);
 		wavefunctionChart = new ChartPanel(ChartFactory.createXYLineChart(
 				"", "x", "Ψ(x)  /  |Ψ(x)|²", wavefunctionChartSeriesCollection,
-				PlotOrientation.VERTICAL, false, false, false));
+				PlotOrientation.VERTICAL, true, false, false));
 		wavefunctionChart.setPreferredSize(new Dimension(500,300));
 		
 		// prawa kolumna, funkcja falowa, energia, masa oraz wspolczynniki wyliczone
@@ -230,28 +220,38 @@ public class Interface
 	}
 	
 	// akcesory dostepu do parametrow
-	public double getAlpha()
+	public double getV1()
 	{
-		return Double.parseDouble(aParam.getText());
+		return Double.parseDouble(v1Param.getText())*eV;
 	}
 	
-	public double getBeta()
+	public double getV2()
 	{
-		return Double.parseDouble(bParam.getText());
+		return Double.parseDouble(v2Param.getText())*eV;
 	}
 	
-	public double getGamma()
+	public double getV3()
 	{
-		return Double.parseDouble(cParam.getText());
+		return Double.parseDouble(v3Param.getText())*eV;
+	}
+	
+	public double getWidth()
+	{
+		return Double.parseDouble(widthParam.getText());
 	}
 	
 	public double getEnergy()
 	{
-		return Double.parseDouble(eParam.getText());
+		return Double.parseDouble(eParam.getText())*eV;
 	}
 	
 	public double getMass()
 	{
-		return Double.parseDouble(mParam.getText());
+		return Double.parseDouble(mParam.getText())*me;
+	}
+	public static double round(double number, int decimalPlaces)
+	{
+		double modifier = Math.pow(10.0, decimalPlaces);
+		return Math.round(number * modifier) / modifier;
 	}
 }

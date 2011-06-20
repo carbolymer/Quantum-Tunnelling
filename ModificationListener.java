@@ -32,12 +32,14 @@ public class ModificationListener
 				JTextField field = (JTextField) evt.getSource();
 				JSlider slider;
 				int value;
-				if(field == frontend.aParam)
-					slider = frontend.aSlider;
-				else if(field == frontend.bParam)
-					slider = frontend.bSlider;
-				else if(field == frontend.cParam)
-					slider = frontend.cSlider;
+				if(field == frontend.v1Param)
+					slider = frontend.v1Slider;
+				else if(field == frontend.v2Param)
+					slider = frontend.v2Slider;
+				else if(field == frontend.v3Param)
+					slider = frontend.v3Slider;
+				else if(field == frontend.widthParam)
+					slider = frontend.widthSlider;
 				else if(field == frontend.eParam)
 					slider = frontend.eSlider;
 				else if(field == frontend.mParam)
@@ -72,12 +74,14 @@ public class ModificationListener
 		{
 			JTextField field;
 			JSlider slider = (JSlider) evt.getSource();
-			if(slider == frontend.aSlider)
-				field = frontend.aParam;
-			else if(slider == frontend.bSlider)
-				field = frontend.bParam;
-			else if(slider == frontend.cSlider)
-				field = frontend.cParam;
+			if(slider == frontend.v1Slider)
+				field = frontend.v1Param;
+			else if(slider == frontend.v2Slider)
+				field = frontend.v2Param;
+			else if(slider == frontend.v3Slider)
+				field = frontend.v3Param;
+			else if(slider == frontend.widthSlider)
+				field = frontend.widthParam;
 			else if(slider == frontend.eSlider)
 				field = frontend.eParam;
 			else if(slider == frontend.mSlider)
