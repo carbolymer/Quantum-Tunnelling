@@ -1,11 +1,9 @@
+import java.awt.Container;
 import javax.swing.*;
-
 
 /*
  * 
  * Quantum Tunnelling
- * Tworzenie apletow w Swing: http://download.oracle.com/javase/tutorial/uiswing/components/applet.html
- * Informacja dotycząca watkow w Swingu: http://download.oracle.com/javase/tutorial/uiswing/concurrency/index.html
  * 
  */
 
@@ -14,19 +12,21 @@ import javax.swing.*;
  */
 public class Window extends JApplet
 {
-	public void init()
+	// obiekt interfejsu, tworzy wszystkie elementy GUI, osadza reakcje na zdarzenia
+	private Interface frontend;
+	
+	public void init(Container window)
 	{
-		// obiekt interfejsu, tworzy wszystkie elementy GUI, osadza reakcje na zdarzenia
-		final Interface frontend = new Interface(this);
-		// obiekt odpowiedzialny za rysowanie wykresu
+		frontend = new Interface(window);
+		// rysowanie wykresu potencjalu
 		PotentialPlot potentialPlot = new PotentialPlot(frontend);
+		// aktualizacja wspolczynnikow przejscia i odbicia
 		UpdateCoefficients updateCoefficients = new UpdateCoefficients(frontend);
+		// rysowanie funkcji falowej
 		WaveFunctionPlot wavefunctionPlot = new WaveFunctionPlot(frontend);
 		
-		// lancuch eventow
-		// modyfikacja parametru potencjalu -> rysowanie wykresu potencjalu + obliczenia numeryczne -> rysowanie funkcji falowej + obliczanie wspolczynnikow
-		// TODO obliczenia numeryczne, rysowanie wykresu f.f. i obliczenia wspolczynnikow
-		//frontend.potentialUpdate.addObserver( <<obiekt klasy do obliczen numerycznych dziedziczacy po Observable i implementujacy Observer>> );
+		// lancuch eventow oparty na wzorcu Obserwator
+		// modyfikacja parametru potencjalu/czastki -> rysowanie wykresu potencjalu -> rysowanie funkcji falowej + obliczanie wspolczynnikow
 		frontend.potentialUpdate.addObserver(potentialPlot);
 		frontend.particleUpdate.addObserver(potentialPlot);
 		potentialPlot.addObserver(updateCoefficients);
@@ -34,13 +34,13 @@ public class Window extends JApplet
 		
 	    try
 	    {
-	    	// odwoływanie się do komponentów swinga tylko poprzez wątek rozdzielający zadania
+	    	// aby zapobiec zawieszeniu aplikacji podczas tworzenia GUI, rysowanie interfejsu poprzez oddzielny watek
 	    	SwingUtilities.invokeAndWait(new Runnable()
 	        {
 	            public void run()
 	            {
 	            	frontend.createGUI();
-	            	frontend.potentialUpdate.stateChanged(null); // aktualizacja stanu aplikacji
+	            	frontend.potentialUpdate.stateChanged(null); // aktualizacja stanu aplikacji poprzez odpalenie lancucha eventow
 	            }
 	        });
 	    }
@@ -49,13 +49,20 @@ public class Window extends JApplet
 	        System.err.println("Nie można byłu narysować interfejsu.");
 	        System.err.println(e.getMessage());
 	    }
-	    
-	    
 	}
+	
+	// konstruktor dla apletu
+	public void init()
+	{
+		init(this);
+	}
+
+	// miejsce startu aplikacji
 	public static void main(String[] args)
 	{
+		// nowe okno aplikacji, rysowanie interfejsu
 		Window d = new Window();
-		d.init();
+		d.init(new JFrame());
 	}
 
 }

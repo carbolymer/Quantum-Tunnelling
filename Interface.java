@@ -1,10 +1,9 @@
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observer;
 
 import javax.swing.*;
 import javax.swing.event.ChangeListener;
@@ -14,6 +13,7 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.*;
 
+
 /*
  * Glowna klasa odpowiedzialna za rysowanie interfejsu
  */
@@ -21,10 +21,10 @@ import org.jfree.data.xy.*;
 public class Interface
 {
 	public static double me = 9.10938e-31; // masa elektronu
-	public static double eV = 1.60217653e-19; // elektronowolt
+	public static double eV = 1.60217653e-19; // elektronowolt w J
 	
-	// okno apletu
-	Window frame;
+	// okno
+	private Container frame;
 	// wykres potencjalu
 	private ChartPanel potentialChart;
 	// wszystkie dane do wykresu
@@ -39,24 +39,24 @@ public class Interface
 	// wartosci funkcji falowej
 	protected XYSeries wavefunctionValues = new XYSeries("");	
 	
-	// parametry do obliczen, kolejno szerokosc bariery, V1,V2, V3, energia, masa
+	// parametry do obliczen, kolejno szerokosc bariery, V1, V2, V3, energia, masa
 	protected JTextField
 		widthParam = new JTextField("10.0",5),
 		v1Param = new JTextField("0.0",5),
-		v2Param = new JTextField("30.0",5),
+		v2Param = new JTextField("0.8",5),
 		v3Param = new JTextField("0.0",5),
-		eParam = new JTextField("10.0",5),
+		eParam = new JTextField("0.799",5),
 		mParam = new JTextField("0.5",5),
-		dCoef = new JTextField("0.0",5), // wspolczynnik przenikania
+		tCoef = new JTextField("0.0",5), // wspolczynnik przenikania
 		rCoef = new JTextField("0.0",5); // wspolczynnik odbicia
 	
 	// suwaki do parametrow
 	protected JSlider
-		v1Slider = new JSlider(JSlider.HORIZONTAL, 0,50000,0),
-		v2Slider = new JSlider(JSlider.HORIZONTAL, 0,50000,30000),
-		v3Slider = new JSlider(JSlider.HORIZONTAL, 0,50000,0),
-		widthSlider = new JSlider(JSlider.HORIZONTAL, 0,35000,10000),
-		eSlider = new JSlider(JSlider.HORIZONTAL, 0,50000,10000),
+		v1Slider = new JSlider(JSlider.HORIZONTAL, 0,1000,0),
+		v2Slider = new JSlider(JSlider.HORIZONTAL, 0,1000,800),
+		v3Slider = new JSlider(JSlider.HORIZONTAL, 0,1000,0),
+		widthSlider = new JSlider(JSlider.HORIZONTAL, 0,30000,10000),
+		eSlider = new JSlider(JSlider.HORIZONTAL, 0,1000,799),
 		mSlider = new JSlider(JSlider.HORIZONTAL, 0,4000,1000);
 	
 	// akcja wykonywana po zmianie parametru suwaka
@@ -67,10 +67,12 @@ public class Interface
 	
 	// obserwator modyfikacji parametru potencjalu
 	protected ModificationListener.Changeable potentialUpdate;
-	// obserwator modyfikacji parametru czasteczki
+
+	// obserwator modyfikacji parametru czastki
 	protected ModificationListener.Changeable particleUpdate;
 	
-	Interface(Window applicationFrame)
+	// konstruktor inicjalizujacy poszczegolne elementy interfejsu
+	Interface(Container applicationFrame)
 	{
 		frame = applicationFrame;
 		sliderChangeAction = new ModificationListener.SliderChange(this);
@@ -85,9 +87,9 @@ public class Interface
 		eParam.setHorizontalAlignment(JTextField.RIGHT);
 		mParam.setHorizontalAlignment(JTextField.RIGHT);
 		rCoef.setHorizontalAlignment(JTextField.RIGHT);
-		dCoef.setHorizontalAlignment(JTextField.RIGHT);
+		tCoef.setHorizontalAlignment(JTextField.RIGHT);
 		rCoef.setEditable(false);
-		dCoef.setEditable(false);
+		tCoef.setEditable(false);
 		
 		v1Slider.addChangeListener(sliderChangeAction);
 		v2Slider.addChangeListener(sliderChangeAction);
@@ -116,7 +118,6 @@ public class Interface
 		widthParam.addActionListener(potentialUpdate);
 		eParam.addActionListener(particleUpdate);
 		mParam.addActionListener(particleUpdate);
-		
 	}
 		
 	/*
@@ -124,14 +125,21 @@ public class Interface
 	 */
 	public void createGUI()
 	{
-		frame.setSize(1080,440);
-		// GridBagLayout imo najwygodniejszy do uzycia
+		if(frame.getClass().getName() == "javax.swing.JFrame")
+		{ // aplikacja
+			((JFrame) frame).setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			((JFrame) frame).setTitle("Quantum Tunnelling");
+			frame.setSize(1080, 460);
+		}
+		else // aplet
+			frame.setSize(1080,440);
+		// GridBagLayout najwygodniejszy do uzycia
 		frame.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 		
 		// ustawienia wykresu potencjalu
 		potentialChart = new ChartPanel(ChartFactory.createXYLineChart(
-				"", "x", "U(x) [eV]", potentialChartSeriesCollection,
+				"", "x [nm]", "U(x) [eV]", potentialChartSeriesCollection,
 				PlotOrientation.VERTICAL, false, false, false));
 		potentialChart.setPreferredSize(new Dimension(450,300));
 		
@@ -149,7 +157,7 @@ public class Interface
 		c.gridx = 0;
 		c.gridy = 2;
 		c.gridwidth = 1;
-		frame.add(new JLabel("<html>Szerokość bariery potencjału [eV]: </html>",JLabel.RIGHT),c);
+		frame.add(new JLabel("<html>Szerokość bariery potencjału [nm]: </html>",JLabel.RIGHT),c);
 		c.gridx = 1;
 		c.gridy = 2;
 		frame.add(widthParam, c);
@@ -180,7 +188,7 @@ public class Interface
 		frame.add(v3Slider,c);
 		
 		wavefunctionChart = new ChartPanel(ChartFactory.createXYLineChart(
-				"", "x", "Ψ(x)  /  |Ψ(x)|²", wavefunctionChartSeriesCollection,
+				"", "x [nm]", "Ψ(x)  /  |Ψ(x)|²", wavefunctionChartSeriesCollection,
 				PlotOrientation.VERTICAL, true, false, false));
 		wavefunctionChart.setPreferredSize(new Dimension(500,300));
 		
@@ -209,14 +217,15 @@ public class Interface
 		frame.add(mSlider,c);
 		c.gridy = 4;
 		c.gridx = 4;
-		frame.add(new JLabel("Współczynnik przejścia D: ",JLabel.RIGHT),c);
+		frame.add(new JLabel("Współczynnik przejścia T: ",JLabel.RIGHT),c);
 		c.gridx = 5;
-		frame.add(dCoef,c);
+		frame.add(tCoef,c);
 		c.gridy = 5;
 		c.gridx = 4;
 		frame.add(new JLabel("Współczynnik odbicia R: ",JLabel.RIGHT), c);
 		c.gridx = 5;
 		frame.add(rCoef, c);
+		frame.setVisible(true);
 	}
 	
 	// akcesory dostepu do parametrow
@@ -249,6 +258,7 @@ public class Interface
 	{
 		return Double.parseDouble(mParam.getText())*me;
 	}
+	// funkcja zaokraglajaca do danego miejsca po przecinku
 	public static double round(double number, int decimalPlaces)
 	{
 		double modifier = Math.pow(10.0, decimalPlaces);

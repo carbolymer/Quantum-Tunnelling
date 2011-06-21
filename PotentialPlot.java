@@ -8,16 +8,17 @@ import org.jfree.data.xy.XYSeries;
  */
 public class PotentialPlot extends Observable implements Function, Observer, Runnable
 {
-	Interface frontend;
+	private Interface frontend;
 	
 	PotentialPlot(Interface ui)
 	{
 		frontend = ui;
 	}
 	
-	// glowna metoda, odpowiedzialna za generowanie serii danych
+	// generowanie serii danych
 	public XYSeries calculate()
 	{
+		// potencjaly dla poszczegolnych obszarow
 		double v1 = frontend.getV1()/Interface.eV;
 		double v2 = frontend.getV2()/Interface.eV;
 		double v3 = frontend.getV3()/Interface.eV;
@@ -54,11 +55,10 @@ public class PotentialPlot extends Observable implements Function, Observer, Run
 		frontend.potentialChartSeriesCollection.removeAllSeries();
 		frontend.potentialValues = calculate();
 		updateEnergy();
-		new Thread(this).run(); // uruchamiamy obliczenia numeryczne -> rysowanie wykresow + liczenie wspolczynnikow
+		new Thread(this).run(); // uruchamiamy rysowanie wykresow + liczenie wspolczynnikow
 		frontend.potentialChartSeriesCollection.addSeries(frontend.potentialValues);
 	}
 
-	// TODO mozliwa desynchronizacja z innymi watkami, sprawdzic + dorobic kontrole watkow
 	/*
 	 * Przekazanie dzialania do obserwatorow
 	 */

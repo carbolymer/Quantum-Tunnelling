@@ -1,0 +1,5 @@
+Quantum tunnelling - modelowanie funkcji falowej przy przechodzeniu przez bariere potencjalu.
+
+Aplikacja wymaga dwoch bibliotek:
+- Commons Math			http://commons.apache.org/math/download_math.cgi
+- JFreechart (0.9.21)	http://sourceforge.net/projects/jfreechart/files/

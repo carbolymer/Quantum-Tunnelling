@@ -13,7 +13,7 @@ import javax.swing.event.ChangeListener;
 public class ModificationListener
 {
 	/*
-	 * Klasa obslugujaca modyfikacje pola
+	 * Klasa obslugujaca modyfikacje odpowiedniego pola
 	 */
 	public static class FieldChange implements ActionListener
 	{
@@ -46,14 +46,14 @@ public class ModificationListener
 					slider = frontend.mSlider;
 				else 
 					return;
+				// nadanie suwakowi wartosci z pola
 				value = (int)(Float.parseFloat(field.getText().replace(",", ".").replace(" ",""))*1000.0f);
-				if (value > slider.getMaximum()) // TODO zbadac sens ograniczania wartosci do maximum suwakow
+				if (value > slider.getMaximum())
 					value = slider.getMaximum();
 				else if(value < slider.getMinimum())
 					value = slider.getMinimum();
 				slider.setValue(value);
 				field.setText(Float.toString(value/1000.0f));
-				frontend.potentialUpdate.stateChanged(null);
 			}
 		}
 	};
@@ -88,12 +88,13 @@ public class ModificationListener
 				field = frontend.mParam;
 			else
 				return;
+			// aktualizacja pola ze slidera
 			field.setText(Float.toString(slider.getValue()/1000.0f));
 		}
 	};
 	
 	/*
-	 * Implementacja obserwatora
+	 * Implementacja obserwatora na potrzeby listenerow
 	 */
 	public static class Changeable extends Observable implements ActionListener, ChangeListener
 	{
